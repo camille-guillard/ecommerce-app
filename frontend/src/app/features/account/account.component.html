@@ -1,0 +1,43 @@
+<div class="auth-page">
+  <div class="auth-card">
+    <h1>{{ 'auth.accountTitle' | translate }}</h1>
+    <p class="auth-link" style="margin-top: 0; margin-bottom: 1rem;">{{ authService.currentUser()?.username }}</p>
+
+    <form (ngSubmit)="save()">
+      <div class="form-group">
+        <label for="email">{{ 'auth.email' | translate }}</label>
+        <input id="email" type="email" [(ngModel)]="email" name="email" required />
+      </div>
+
+      <div class="form-group">
+        <label for="firstName">{{ 'auth.firstName' | translate }}</label>
+        <input id="firstName" type="text" [(ngModel)]="firstName" name="firstName" />
+      </div>
+
+      <div class="form-group">
+        <label for="lastName">{{ 'auth.lastName' | translate }}</label>
+        <input id="lastName" type="text" [(ngModel)]="lastName" name="lastName" />
+      </div>
+
+      <div class="form-group">
+        <label for="street">{{ 'auth.street' | translate }}</label>
+        <input id="street" type="text" [(ngModel)]="street" name="street" />
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="city">{{ 'auth.city' | translate }}</label>
+          <input id="city" type="text" [(ngModel)]="city" name="city" />
+        </div>
+        <div class="form-group">
+          <label for="postalCode">{{ 'auth.postalCode' | translate }}</label>
+          <input id="postalCode" type="text" [(ngModel)]="postalCode" name="postalCode" />
+        </div>
+      </div>
+
+      <button type="submit" class="submit-btn" [disabled]="loading()">
+        @if (loading()) { {{ 'auth.saving' | translate }} } @else { {{ 'auth.save' | translate }} }
+      </button>
+    </form>
+  </div>
+</div>

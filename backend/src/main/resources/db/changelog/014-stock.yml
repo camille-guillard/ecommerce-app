@@ -1,0 +1,8 @@
+databaseChangeLog:
+  - changeSet:
+      id: 014-set-variant-stock-null
+      author: ecommerce
+      changes:
+        - sql:
+            sql: |
+              UPDATE products SET stock = NULL WHERE id IN (SELECT DISTINCT product_id FROM product_variants);

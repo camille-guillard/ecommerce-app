@@ -1,0 +1,73 @@
+databaseChangeLog:
+  - changeSet:
+      id: 002-insert-categories
+      author: ecommerce
+      changes:
+        - insert:
+            tableName: categories
+            columns:
+              - column: { name: id, value: 1 }
+              - column: { name: name, value: food }
+              - column: { name: display_name, value: Alimentaire }
+        - insert:
+            tableName: categories
+            columns:
+              - column: { name: id, value: 2 }
+              - column: { name: name, value: drinks }
+              - column: { name: display_name, value: Boissons }
+        - insert:
+            tableName: categories
+            columns:
+              - column: { name: id, value: 3 }
+              - column: { name: name, value: alcohol }
+              - column: { name: display_name, value: Alcool }
+        - insert:
+            tableName: categories
+            columns:
+              - column: { name: id, value: 4 }
+              - column: { name: name, value: clothing }
+              - column: { name: display_name, value: "Vêtements" }
+        - insert:
+            tableName: categories
+            columns:
+              - column: { name: id, value: 5 }
+              - column: { name: name, value: multimedia }
+              - column: { name: display_name, value: "Multimédia" }
+        - insert:
+            tableName: categories
+            columns:
+              - column: { name: id, value: 6 }
+              - column: { name: name, value: videogames }
+              - column: { name: display_name, value: "Jeux vidéo" }
+        - insert:
+            tableName: categories
+            columns:
+              - column: { name: id, value: 7 }
+              - column: { name: name, value: household }
+              - column: { name: display_name, value: Entretien }
+        - insert:
+            tableName: categories
+            columns:
+              - column: { name: id, value: 8 }
+              - column: { name: name, value: beauty }
+              - column: { name: display_name, value: "Beauté & Hygiène" }
+        - insert:
+            tableName: categories
+            columns:
+              - column: { name: id, value: 9 }
+              - column: { name: name, value: toys }
+              - column: { name: display_name, value: Jouets }
+        - insert:
+            tableName: categories
+            columns:
+              - column: { name: id, value: 100 }
+              - column: { name: name, value: books }
+              - column: { name: display_name, value: Livres }
+
+  - changeSet:
+      id: 002-insert-products
+      author: ecommerce
+      changes:
+        - sqlFile:
+            path: db/changelog/002-products.sql
+            relativeToChangelogFile: false

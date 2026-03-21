@@ -1,0 +1,8 @@
+databaseChangeLog:
+  - changeSet:
+      id: 011-create-subcategories-and-reassign
+      author: ecommerce
+      changes:
+        - sqlFile:
+            path: db/changelog/011-subcategories.sql
+            relativeToChangelogFile: false

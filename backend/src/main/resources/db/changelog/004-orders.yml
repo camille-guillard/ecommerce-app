@@ -1,0 +1,125 @@
+databaseChangeLog:
+  - changeSet:
+      id: 004-create-orders
+      author: ecommerce
+      changes:
+        - createTable:
+            tableName: customer_orders
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: created_at
+                  type: timestamp
+                  constraints:
+                    nullable: false
+              - column:
+                  name: total_amount
+                  type: decimal(10,2)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: status
+                  type: varchar(20)
+                  constraints:
+                    nullable: false
+        - createTable:
+            tableName: order_lines
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: order_id
+                  type: bigint
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_orderline_order
+                    references: customer_orders(id)
+              - column:
+                  name: product_id
+                  type: bigint
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_orderline_product
+                    references: products(id)
+              - column:
+                  name: quantity
+                  type: int
+                  constraints:
+                    nullable: false
+              - column:
+                  name: unit_price
+                  type: decimal(10,2)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: variant_label
+                  type: varchar(100)
+        - createTable:
+            tableName: order_events
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: order_id
+                  type: bigint
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_orderevent_order
+                    references: customer_orders(id)
+              - column:
+                  name: status
+                  type: varchar(20)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created_at
+                  type: timestamp
+                  constraints:
+                    nullable: false
+
+  - changeSet:
+      id: 004-insert-sample-orders
+      author: ecommerce
+      comment: "Three sample orders: delivered, in transit, confirmed"
+      changes:
+        - sql:
+            sql: |
+              INSERT INTO customer_orders (created_at, total_amount, status) VALUES ('2026-02-10 10:15:00', 23.57, 'COMPLETED');
+              INSERT INTO order_lines (order_id, product_id, quantity, unit_price) VALUES (1, 1, 2, 1.61);
+              INSERT INTO order_lines (order_id, product_id, quantity, unit_price) VALUES (1, 9, 3, 0.80);
+              INSERT INTO order_lines (order_id, product_id, quantity, unit_price) VALUES (1, 25, 1, 10.43);
+              INSERT INTO order_lines (order_id, product_id, quantity, unit_price) VALUES (1, 63, 1, 10.97);
+              INSERT INTO customer_orders (created_at, total_amount, status) VALUES ('2026-02-25 11:20:00', 89.90, 'CANCELLED');
+              INSERT INTO order_lines (order_id, product_id, quantity, unit_price) VALUES (2, 34, 1, 89.90);
+              INSERT INTO customer_orders (created_at, total_amount, status) VALUES ('2026-03-08 16:45:00', 511.32, 'IN_TRANSIT');
+              INSERT INTO order_lines (order_id, product_id, quantity, unit_price) VALUES (3, 23, 1, 189.90);
+              INSERT INTO order_lines (order_id, product_id, quantity, unit_price) VALUES (3, 19, 3, 2.17);
+              INSERT INTO order_lines (order_id, product_id, quantity, unit_price) VALUES (3, 42, 1, 314.91);
+              INSERT INTO customer_orders (created_at, total_amount, status) VALUES ('2026-03-15 09:30:00', 15.67, 'CONFIRMED');
+              INSERT INTO order_lines (order_id, product_id, quantity, unit_price) VALUES (4, 55, 2, 2.99);
+              INSERT INTO order_lines (order_id, product_id, quantity, unit_price) VALUES (4, 49, 1, 9.99);
+              INSERT INTO order_lines (order_id, product_id, quantity, unit_price) VALUES (4, 4, 1, 2.15);
+              INSERT INTO order_events (order_id, status, created_at) VALUES (1, 'CONFIRMED', '2026-02-10 10:15:00');
+              INSERT INTO order_events (order_id, status, created_at) VALUES (1, 'IN_TRANSIT', '2026-02-11 14:30:00');
+              INSERT INTO order_events (order_id, status, created_at) VALUES (1, 'COMPLETED', '2026-02-14 09:00:00');
+              INSERT INTO order_events (order_id, status, created_at) VALUES (2, 'CONFIRMED', '2026-02-25 11:20:00');
+              INSERT INTO order_events (order_id, status, created_at) VALUES (2, 'CANCELLED', '2026-02-25 18:45:00');
+              INSERT INTO order_events (order_id, status, created_at) VALUES (3, 'CONFIRMED', '2026-03-08 16:45:00');
+              INSERT INTO order_events (order_id, status, created_at) VALUES (3, 'IN_TRANSIT', '2026-03-09 10:20:00');
+              INSERT INTO order_events (order_id, status, created_at) VALUES (4, 'CONFIRMED', '2026-03-15 09:30:00');

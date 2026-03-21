@@ -1,0 +1,40 @@
+databaseChangeLog:
+  - changeSet:
+      id: 012-create-product-attributes
+      author: ecommerce
+      changes:
+        - createTable:
+            tableName: product_attributes
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: product_id
+                  type: bigint
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_pa_product
+                    references: products(id)
+              - column:
+                  name: attribute_key
+                  type: varchar(50)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: attribute_value
+                  type: varchar(100)
+                  constraints:
+                    nullable: false
+
+  - changeSet:
+      id: 012-insert-product-attributes
+      author: ecommerce
+      changes:
+        - sqlFile:
+            path: db/changelog/012-product-attributes.sql
+            relativeToChangelogFile: false

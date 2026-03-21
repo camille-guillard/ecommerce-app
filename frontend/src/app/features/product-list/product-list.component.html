@@ -1,0 +1,254 @@
+<div class="product-list-page">
+  <div class="desktop-layout">
+    <!-- Sidebar (desktop) -->
+    <aside class="sidebar">
+      <h3 class="sidebar-title">{{ 'catalogue.categories' | translate }}</h3>
+      <ul class="category-list">
+        <li>
+          <button class="category-item" [class.active]="selectedCategoryId() === null" (click)="selectCategory(null)">
+            {{ 'catalogue.all' | translate }}
+          </button>
+        </li>
+        @for (cat of categories(); track cat.id) {
+          <li>
+            <button class="category-item" [class.active]="selectedCategoryId() === cat.id" (click)="selectCategory(cat.id)">
+              {{ cat.displayName }}
+            </button>
+            @if (cat.children && cat.children.length > 0 && (selectedCategoryId() === cat.id || isCategoryChildSelected(cat))) {
+              <ul class="subcategory-list">
+                @for (sub of cat.children; track sub.id) {
+                  <li>
+                    <button class="category-item sub" [class.active]="selectedCategoryId() === sub.id" (click)="selectCategory(sub.id)">
+                      {{ sub.displayName }}
+                    </button>
+                  </li>
+                }
+              </ul>
+            }
+          </li>
+        }
+      </ul>
+
+      <div class="sidebar-section">
+        <h3 class="sidebar-title">{{ 'catalogue.filters' | translate }}</h3>
+        <label class="sidebar-checkbox">
+          <input type="checkbox" (change)="onPromotionChange($event)" />
+          <span>{{ 'catalogue.onPromotion' | translate }}</span>
+        </label>
+        <label class="sidebar-checkbox">
+          <input type="checkbox" (change)="onAvailableOnlyChange($event)" />
+          <span>{{ 'catalogue.available' | translate }}</span>
+        </label>
+        <label class="sidebar-checkbox">
+          <input type="checkbox" (change)="onPreorderChange($event)" />
+          <span>{{ 'catalogue.preorder' | translate }}</span>
+        </label>
+      </div>
+
+      @for (attrKey of attributeKeys; track attrKey) {
+        <div class="sidebar-section">
+          <h3 class="sidebar-title">{{ attrKey }}</h3>
+          <select class="filter-select attr-select" (change)="onAttributeChange(attrKey, $any($event.target).value)">
+            <option value="">--</option>
+            @for (val of availableAttributes()[attrKey]; track val) {
+              <option [value]="val" [selected]="selectedAttributes()[attrKey] === val">{{ val }}</option>
+            }
+          </select>
+        </div>
+      }
+
+      <div class="sidebar-section">
+        <h3 class="sidebar-title">{{ 'catalogue.minRating' | translate }}</h3>
+        @for (star of [4, 3, 2, 1]; track star) {
+          <label class="sidebar-checkbox star-filter">
+            <input type="radio" name="minRating" [value]="star" [checked]="minRating() === star" (change)="setMinRating(star)" />
+            <app-star-rating [rating]="star" />
+            <span>{{ 'catalogue.andMore' | translate }}</span>
+          </label>
+        }
+        <label class="sidebar-checkbox star-filter">
+          <input type="radio" name="minRating" [value]="0" [checked]="minRating() === 0" (change)="setMinRating(0)" />
+          <span>{{ 'catalogue.allRatings' | translate }}</span>
+        </label>
+      </div>
+    </aside>
+
+    <!-- Main content -->
+    <div class="main-content">
+      <div class="top-bar">
+        <div class="top-bar-left">
+          <h1 class="page-title">{{ 'catalogue.title' | translate }}</h1>
+          <p class="result-count">{{ totalElements() }} {{ 'catalogue.articles' | translate }}</p>
+        </div>
+        <div class="top-bar-right">
+          <div class="search-wrapper">
+            <input
+              #searchInput
+              type="text"
+              class="search-input"
+              [placeholder]="'catalogue.search' | translate"
+              [attr.aria-label]="'catalogue.search' | translate"
+              (input)="onSearchInput($event)"
+            />
+            @if (searchTerm()) {
+              <button class="search-clear" (click)="clearSearch(searchInput)">&times;</button>
+            }
+          </div>
+
+          <!-- Mobile category select -->
+          <select class="filter-select mobile-only" (change)="onCategoryChange($event)">
+            <option value="">{{ 'catalogue.allCategories' | translate }}</option>
+            @for (cat of categories(); track cat.id) {
+              <option [value]="cat.id">{{ cat.displayName }}</option>
+            }
+          </select>
+
+          <select class="filter-select" (change)="onSortChange($event)">
+            <option value="">{{ 'catalogue.relevance' | translate }}</option>
+            <option value="displayName,asc">{{ 'catalogue.nameAZ' | translate }}</option>
+            <option value="displayName,desc">{{ 'catalogue.nameZA' | translate }}</option>
+            <option value="price,asc">{{ 'catalogue.priceAsc' | translate }}</option>
+            <option value="price,desc">{{ 'catalogue.priceDesc' | translate }}</option>
+            <option value="releaseDate,desc">{{ 'catalogue.releaseDateDesc' | translate }}</option>
+            <option value="releaseDate,asc">{{ 'catalogue.releaseDateAsc' | translate }}</option>
+          </select>
+
+          <!-- Mobile checkboxes -->
+          <label class="promo-filter mobile-only">
+            <input type="checkbox" (change)="onPromotionChange($event)" />
+            <span>{{ 'catalogue.onPromotion' | translate }}</span>
+          </label>
+          <label class="promo-filter mobile-only">
+            <input type="checkbox" (change)="onAvailableOnlyChange($event)" />
+            <span>{{ 'catalogue.available' | translate }}</span>
+          </label>
+        </div>
+      </div>
+
+      @if (loading()) {
+        <div class="loading">{{ 'catalogue.loading' | translate }}</div>
+      } @else {
+        <div class="product-grid">
+          @for (product of products(); track product.id) {
+            <div class="product-card" [class.unavailable]="!product.available">
+              <a [routerLink]="['/products', product.id]" class="product-image-link">
+                <div class="product-image">
+                  @if (product.imageUrl) {
+                    <img [src]="product.imageUrl" [alt]="product.displayName" class="product-img" />
+                  } @else {
+                    <span class="product-icon" [innerHTML]="getPlaceholderIcon(product)"></span>
+                  }
+                  @if (product.discountPercent && product.available) {
+                    <span class="promo-badge">-{{ product.discountPercent | number:'1.0-0' }}%</span>
+                  }
+                  @if (!product.available) {
+                    <span class="unavailable-badge">{{ 'catalogue.unavailable' | translate }}</span>
+                  }
+                  @if (isPreorder(product)) {
+                    <span class="preorder-badge">{{ 'catalogue.preorder' | translate }}</span>
+                  }
+                  @if (authService.isLoggedIn()) {
+                    <button class="wishlist-heart" [class.active]="wishlistService.isInWishlist(product.id)" (click)="$event.preventDefault(); $event.stopPropagation(); wishlistService.toggle(product.id)" [attr.aria-label]="wishlistAriaLabel(product)">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" [attr.fill]="wishlistService.isInWishlist(product.id) ? '#ef4444' : 'none'" stroke="currentColor" stroke-width="2"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+                    </button>
+                  }
+                </div>
+              </a>
+              <div class="product-info">
+                <span class="product-category" [style]="getCategoryStyle(product)">
+                  {{ product.categoryDisplayName }}
+                </span>
+                <h3 class="product-name"><a [routerLink]="['/products', product.id]">{{ product.displayName }}</a></h3>
+                @if (product.averageRating) {
+                  <div class="product-rating">
+                    <app-star-rating [rating]="product.averageRating" />
+                    <span class="rating-count">({{ product.reviewCount }})</span>
+                  </div>
+                }
+                <p class="product-description">{{ product.description }}</p>
+                <div class="product-footer">
+                  <div class="price-block">
+                    @if (product.discountedPrice && product.available) {
+                      <span class="product-price-old">{{ product.price | number:'1.2-2' }} &euro;</span>
+                      <span class="product-price promo">{{ product.discountedPrice | number:'1.2-2' }} &euro;</span>
+                    } @else {
+                      <span class="product-price">{{ product.price | number:'1.2-2' }} &euro;</span>
+                    }
+                  </div>
+                  @if (getCartQuantity(product.id) > 0 && !product.hasVariants) {
+                    <div class="cart-qty-control">
+                      <button class="cart-qty-btn" (click)="decrementCart(product.id)">-</button>
+                      <input type="number" class="cart-qty-input" [value]="getCartQuantity(product.id)" min="1" [attr.max]="product.stock" (input)="onCartQuantityInput($event, product.id, product.stock)" />
+                      <button class="cart-qty-btn" [disabled]="product.stock !== null && getCartQuantity(product.id) >= product.stock" (click)="addToCart(product)">+</button>
+                    </div>
+                  } @else {
+                    <button
+                      class="add-to-cart-btn"
+                      [disabled]="!product.available"
+                      (click)="addToCart(product)"
+                    >
+                      {{ 'catalogue.add' | translate }}
+                    </button>
+                  }
+                </div>
+
+                <!-- Variant popover -->
+                @if (popoverProductId() === product.id) {
+                  <div class="popover-backdrop" (click)="closePopover()"></div>
+                  <div class="variant-popover" role="dialog" aria-modal="true">
+                    <div class="popover-header">
+                      <span>{{ product.displayName }}</span>
+                      <button class="popover-close" (click)="closePopover()">&#10005;</button>
+                    </div>
+                    @if (popoverColors().length > 0) {
+                      <div class="popover-group">
+                        <label>{{ 'product.color' | translate }}</label>
+                        <div class="popover-options">
+                          @for (color of popoverColors(); track color) {
+                            <button class="popover-pill" [class.active]="popoverSelectedColor() === color" (click)="popoverSelectColor(color)">{{ color }}</button>
+                          }
+                        </div>
+                      </div>
+                    }
+                    @if (popoverSizes().length > 0) {
+                      <div class="popover-group">
+                        <label>{{ 'product.size' | translate }}</label>
+                        <div class="popover-options">
+                          @for (size of popoverSizes(); track size) {
+                            <button class="popover-pill" [class.active]="popoverSelectedSize() === size"
+                                    [class.out-of-stock]="!popoverIsSizeAvailable(size)"
+                                    [disabled]="!popoverIsSizeAvailable(size)"
+                                    (click)="popoverSelectSize(size)">{{ size }}</button>
+                          }
+                        </div>
+                      </div>
+                    }
+                    <button class="popover-add-btn" [disabled]="popoverSizes().length > 0 && !popoverSelectedSize()" (click)="popoverAddToCart(product)">
+                      {{ 'catalogue.add' | translate }}
+                    </button>
+                  </div>
+                }
+              </div>
+            </div>
+          }
+        </div>
+
+        @if (totalPages() > 1) {
+          <div class="pagination">
+            <button class="page-btn" [disabled]="currentPage() === 0" (click)="goToPage(currentPage() - 1)">
+              &laquo; {{ 'catalogue.previous' | translate }}
+            </button>
+            @for (page of pages(); track page) {
+              <button class="page-btn" [class.active]="page === currentPage()" (click)="goToPage(page)">
+                {{ page + 1 }}
+              </button>
+            }
+            <button class="page-btn" [disabled]="currentPage() === totalPages() - 1" (click)="goToPage(currentPage() + 1)">
+              {{ 'catalogue.next' | translate }} &raquo;
+            </button>
+          </div>
+        }
+      }
+    </div>
+  </div>
+</div>

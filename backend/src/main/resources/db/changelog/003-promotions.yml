@@ -1,0 +1,67 @@
+databaseChangeLog:
+  - changeSet:
+      id: 003-create-promotions
+      author: ecommerce
+      changes:
+        - createTable:
+            tableName: promotions
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: product_id
+                  type: bigint
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_promotion_product
+                    references: products(id)
+              - column:
+                  name: discount_percent
+                  type: decimal(5,2)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: start_date
+                  type: date
+                  constraints:
+                    nullable: false
+              - column:
+                  name: end_date
+                  type: date
+
+  - changeSet:
+      id: 003-insert-promotions
+      author: ecommerce
+      comment: "Some permanent promos, some limited-time"
+      changes:
+        - sql:
+            sql: |
+              -- Pâtes Barilla -15% (permanent)
+              INSERT INTO promotions (product_id, discount_percent, start_date, end_date) VALUES (1, 15.00, '2025-01-01', NULL);
+              -- Coca-Cola -20% (permanent)
+              INSERT INTO promotions (product_id, discount_percent, start_date, end_date) VALUES (17, 20.00, '2025-01-01', NULL);
+              -- Bordeaux rouge -10% (limited)
+              INSERT INTO promotions (product_id, discount_percent, start_date, end_date) VALUES (16, 10.00, '2025-01-01', '2026-12-31');
+              -- Leffe blonde -25% (permanent)
+              INSERT INTO promotions (product_id, discount_percent, start_date, end_date) VALUES (19, 25.00, '2025-01-01', NULL);
+              -- T-shirt coton blanc -30% (permanent)
+              INSERT INTO promotions (product_id, discount_percent, start_date, end_date) VALUES (25, 30.00, '2025-06-01', NULL);
+              -- Casque Bluetooth Sony -15% (limited)
+              INSERT INTO promotions (product_id, discount_percent, start_date, end_date) VALUES (37, 15.00, '2025-01-01', '2026-12-31');
+              -- Nintendo Switch OLED -10% (permanent)
+              INSERT INTO promotions (product_id, discount_percent, start_date, end_date) VALUES (42, 10.00, '2025-01-01', NULL);
+              -- Lessive pods Ariel -20% (permanent)
+              INSERT INTO promotions (product_id, discount_percent, start_date, end_date) VALUES (49, 20.00, '2025-01-01', NULL);
+              -- Shampooing Elsève -25% (permanent)
+              INSERT INTO promotions (product_id, discount_percent, start_date, end_date) VALUES (55, 25.00, '2025-01-01', NULL);
+              -- Puzzle 1000 pièces -15% (limited)
+              INSERT INTO promotions (product_id, discount_percent, start_date, end_date) VALUES (63, 15.00, '2025-01-01', '2026-06-30');
+              -- Evian -10% (permanent)
+              INSERT INTO promotions (product_id, discount_percent, start_date, end_date) VALUES (9, 10.00, '2025-01-01', NULL);
+              -- Monopoly -20% (permanent)
+              INSERT INTO promotions (product_id, discount_percent, start_date, end_date) VALUES (64, 20.00, '2025-01-01', NULL);

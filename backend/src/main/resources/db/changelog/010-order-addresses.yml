@@ -1,0 +1,32 @@
+databaseChangeLog:
+  - changeSet:
+      id: 010-add-addresses-to-orders
+      author: ecommerce
+      changes:
+        - addColumn:
+            tableName: customer_orders
+            columns:
+              - column:
+                  name: billing_street
+                  type: varchar(255)
+              - column:
+                  name: billing_city
+                  type: varchar(100)
+              - column:
+                  name: billing_postal_code
+                  type: varchar(20)
+              - column:
+                  name: shipping_street
+                  type: varchar(255)
+              - column:
+                  name: shipping_city
+                  type: varchar(100)
+              - column:
+                  name: shipping_postal_code
+                  type: varchar(20)
+        - sql:
+            sql: |
+              UPDATE customer_orders SET
+                billing_street = '12 rue de la Paix', billing_city = 'Paris', billing_postal_code = '75001',
+                shipping_street = '12 rue de la Paix', shipping_city = 'Paris', shipping_postal_code = '75001'
+              WHERE user_id IS NOT NULL;

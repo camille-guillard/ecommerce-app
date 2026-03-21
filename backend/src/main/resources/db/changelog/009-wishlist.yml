@@ -1,0 +1,38 @@
+databaseChangeLog:
+  - changeSet:
+      id: 009-create-wishlist
+      author: ecommerce
+      changes:
+        - createTable:
+            tableName: wishlist_items
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: user_id
+                  type: bigint
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_wishlist_user
+                    references: users(id)
+              - column:
+                  name: product_id
+                  type: bigint
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_wishlist_product
+                    references: products(id)
+              - column:
+                  name: created_at
+                  type: timestamp
+                  constraints:
+                    nullable: false
+        - addUniqueConstraint:
+            tableName: wishlist_items
+            columnNames: user_id, product_id
+            constraintName: uk_wishlist_user_product

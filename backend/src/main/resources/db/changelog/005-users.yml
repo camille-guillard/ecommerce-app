@@ -1,0 +1,111 @@
+databaseChangeLog:
+  - changeSet:
+      id: 005-create-users
+      author: ecommerce
+      changes:
+        - createTable:
+            tableName: users
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: username
+                  type: varchar(50)
+                  constraints:
+                    nullable: false
+                    unique: true
+              - column:
+                  name: password_hash
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: email
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: first_name
+                  type: varchar(100)
+              - column:
+                  name: last_name
+                  type: varchar(100)
+              - column:
+                  name: street
+                  type: varchar(255)
+              - column:
+                  name: city
+                  type: varchar(100)
+              - column:
+                  name: postal_code
+                  type: varchar(20)
+
+  - changeSet:
+      id: 005-create-roles
+      author: ecommerce
+      changes:
+        - createTable:
+            tableName: roles
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: name
+                  type: varchar(50)
+                  constraints:
+                    nullable: false
+                    unique: true
+
+  - changeSet:
+      id: 005-create-user-roles
+      author: ecommerce
+      changes:
+        - createTable:
+            tableName: user_roles
+            columns:
+              - column:
+                  name: user_id
+                  type: bigint
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_userrole_user
+                    references: users(id)
+              - column:
+                  name: role_id
+                  type: bigint
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_userrole_role
+                    references: roles(id)
+
+  - changeSet:
+      id: 005-add-user-to-orders
+      author: ecommerce
+      changes:
+        - addColumn:
+            tableName: customer_orders
+            columns:
+              - column:
+                  name: user_id
+                  type: bigint
+                  constraints:
+                    foreignKeyName: fk_order_user
+                    references: users(id)
+
+  - changeSet:
+      id: 005-insert-users
+      author: ecommerce
+      changes:
+        - sqlFile:
+            path: db/changelog/005-users.sql
+            relativeToChangelogFile: false

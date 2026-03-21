@@ -1,0 +1,260 @@
+.order-detail-page {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.loading {
+  text-align: center;
+  padding: 3rem;
+  color: var(--text-secondary);
+}
+
+.back-link {
+  display: inline-block;
+  margin-bottom: 1.5rem;
+  color: var(--primary);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.back-link:hover {
+  text-decoration: underline;
+}
+
+.order-header-card {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  padding: 1.5rem;
+  box-shadow: var(--shadow);
+  margin-bottom: 1.5rem;
+}
+
+.order-header-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.order-header-top h1 {
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.order-status {
+  padding: 0.3rem 0.8rem;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.order-status[data-status="CONFIRMED"] { background-color: #dbeafe; color: #1e40af; }
+.order-status[data-status="IN_TRANSIT"] { background-color: #fef3c7; color: #92400e; }
+.order-status[data-status="COMPLETED"] { background-color: #d1fae5; color: #065f46; }
+.order-status[data-status="CANCELLED"] { background-color: #fee2e2; color: #991b1b; }
+
+.order-meta {
+  display: flex;
+  justify-content: space-between;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+.order-total {
+  font-weight: 700;
+  font-size: 1.2rem;
+  color: var(--primary);
+}
+
+.address-section {
+  display: flex;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.address-card {
+  flex: 1;
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  padding: 1.25rem;
+  box-shadow: var(--shadow);
+}
+
+.address-card h3 {
+  font-size: 0.95rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.address-card p {
+  margin: 0.2rem 0;
+  font-size: 0.95rem;
+}
+
+.order-lines-card {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  padding: 1.25rem;
+  box-shadow: var(--shadow);
+}
+
+.order-lines-card h3 {
+  font-size: 1rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--text-secondary);
+}
+
+.order-line {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.6rem 0;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.order-line:last-child {
+  border-bottom: none;
+}
+
+.line-img-wrapper {
+  width: 48px;
+  height: 48px;
+  border-radius: 6px;
+  overflow: hidden;
+  background-color: var(--bg-secondary);
+  flex-shrink: 0;
+}
+
+.line-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.line-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.line-name {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--text-primary);
+  text-decoration: none;
+}
+
+.line-name:hover {
+  color: var(--primary);
+}
+
+.line-qty {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+.line-subtotal {
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.rate-link, .rated-badge {
+  min-width: 5.5rem;
+  text-align: center;
+  white-space: nowrap;
+  font-size: 0.85rem;
+  flex-shrink: 0;
+}
+
+.rate-link {
+  color: #f59e0b;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.rate-link:hover {
+  text-decoration: underline;
+}
+
+.order-events-card {
+  margin-top: 1.5rem;
+  padding: 1.25rem;
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  box-shadow: var(--shadow);
+}
+
+.order-events-card h3 {
+  font-size: 1rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+}
+
+.events-timeline {
+  position: relative;
+  padding-left: 1.5rem;
+  border-left: 2px solid var(--border-color);
+}
+
+.event-item {
+  position: relative;
+  padding-bottom: 1rem;
+}
+
+.event-item:last-child {
+  padding-bottom: 0;
+}
+
+.event-dot {
+  position: absolute;
+  left: -1.75rem;
+  top: 0.15rem;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background-color: var(--border-color);
+}
+
+.event-dot[data-status="CONFIRMED"] { background-color: #3b82f6; }
+.event-dot[data-status="IN_TRANSIT"] { background-color: #f59e0b; }
+.event-dot[data-status="COMPLETED"] { background-color: #16a34a; }
+.event-dot[data-status="CANCELLED"] { background-color: #ef4444; }
+
+.event-content {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.event-status {
+  font-weight: 600;
+  font-size: 0.85rem;
+  padding: 0.15rem 0.5rem;
+  border-radius: 4px;
+}
+
+.event-status[data-status="CONFIRMED"] { background-color: #3b82f620; color: #3b82f6; }
+.event-status[data-status="IN_TRANSIT"] { background-color: #f59e0b20; color: #f59e0b; }
+.event-status[data-status="COMPLETED"] { background-color: #16a34a20; color: #16a34a; }
+.event-status[data-status="CANCELLED"] { background-color: #ef444420; color: #ef4444; }
+
+.event-date {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+@media (max-width: 640px) {
+  .address-section {
+    flex-direction: column;
+  }
+}

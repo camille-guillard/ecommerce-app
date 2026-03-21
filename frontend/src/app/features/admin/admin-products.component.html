@@ -1,0 +1,165 @@
+<div class="admin-section">
+  <div class="section-header">
+    <button class="create-btn" (click)="openCreate()">+ {{ 'admin.newProduct' | translate }}</button>
+  </div>
+
+  <table class="admin-table">
+    <thead>
+      <tr>
+        <th class="sortable" (click)="toggleSort('id')">ID <span class="sort-icon">{{ sortIcon('id') }}</span></th>
+        <th>{{ 'admin.image' | translate }}</th>
+        <th class="sortable" (click)="toggleSort('displayName')">{{ 'admin.productName' | translate }} <span class="sort-icon">{{ sortIcon('displayName') }}</span></th>
+        <th class="sortable" (click)="toggleSort('price')">{{ 'admin.price' | translate }} <span class="sort-icon">{{ sortIcon('price') }}</span></th>
+        <th class="sortable" (click)="toggleSort('stock')">{{ 'admin.stock' | translate }} <span class="sort-icon">{{ sortIcon('stock') }}</span></th>
+        <th>{{ 'admin.category' | translate }}</th>
+        <th>{{ 'admin.statusLabel' | translate }}</th>
+        <th>{{ 'admin.actions' | translate }}</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (product of products(); track product.id) {
+        <tr [class.inactive-row]="!product.active">
+          <td>{{ product.id }}</td>
+          <td>
+            @if (product.imageUrl) {
+              <img [src]="product.imageUrl" class="product-thumb" />
+            } @else {
+              <span class="no-img">-</span>
+            }
+          </td>
+          <td class="name-cell">{{ product.displayName }}</td>
+          <td>{{ product.price | number:'1.2-2' }} &euro;</td>
+          <td>
+            @if (product.stock !== null) {
+              <span [class.low-stock]="product.stock < 10">{{ product.stock }}</span>
+            } @else {
+              <span class="variant-stock">{{ 'admin.variants' | translate }}</span>
+            }
+          </td>
+          <td>{{ product.categoryDisplayName }}</td>
+          <td>
+            @if (product.active) {
+              <span class="status-active">{{ 'admin.active' | translate }}</span>
+            } @else {
+              <span class="status-inactive">{{ 'admin.inactive' | translate }}</span>
+            }
+          </td>
+          <td class="actions-cell">
+            <button class="edit-btn" (click)="openEdit(product)">{{ 'admin.edit' | translate }}</button>
+            @if (product.active) {
+              <button class="deactivate-btn" (click)="toggleActive(product)">{{ 'admin.deactivate' | translate }}</button>
+            } @else {
+              <button class="activate-btn" (click)="toggleActive(product)">{{ 'admin.activate' | translate }}</button>
+            }
+          </td>
+        </tr>
+      }
+    </tbody>
+  </table>
+
+  @if (totalPages() > 1) {
+    <div class="pagination">
+      <button [disabled]="page() === 0" (click)="goToPage(page() - 1)">&laquo;</button>
+      <span>{{ page() + 1 }} / {{ totalPages() }}</span>
+      <button [disabled]="page() >= totalPages() - 1" (click)="goToPage(page() + 1)">&raquo;</button>
+    </div>
+  }
+</div>
+
+<!-- Edit/Create Modal -->
+@if (showModal()) {
+  <div class="modal-backdrop" (click)="closeModal()"></div>
+  <div class="modal" role="dialog" aria-modal="true">
+    <div class="modal-header">
+      <h2>{{ (editing() ? 'admin.editProduct' : 'admin.createProduct') | translate }}</h2>
+      <button class="modal-close" (click)="closeModal()">&#10005;</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>{{ 'admin.productName' | translate }}</label>
+        <input type="text" [(ngModel)]="form.displayName" />
+      </div>
+      <div class="form-group">
+        <label>{{ 'admin.description' | translate }}</label>
+        <textarea [(ngModel)]="form.description" rows="3"></textarea>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>{{ 'admin.price' | translate }} (&euro;)</label>
+          <input type="number" [(ngModel)]="form.price" step="0.01" />
+        </div>
+        <div class="form-group">
+          <label>{{ 'admin.stock' | translate }}</label>
+          <input type="number" [(ngModel)]="form.stock" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label>{{ 'admin.category' | translate }}</label>
+        <select [(ngModel)]="form.categoryId">
+          <option [value]="0" disabled>-- {{ 'admin.choose' | translate }} --</option>
+          @for (cat of categories(); track cat.id) {
+            <option [value]="cat.id">{{ cat.displayName }} ({{ cat.id }})</option>
+          }
+        </select>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>{{ 'admin.promotion' | translate }} (%)</label>
+          <input type="number" [(ngModel)]="form.discountPercent" step="1" min="0" max="100" [placeholder]="'admin.noPromo' | translate" />
+        </div>
+        <div class="form-group">
+          <label>{{ 'admin.promoEndDate' | translate }}</label>
+          <input type="date" [(ngModel)]="form.promoEndDate" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label>{{ 'admin.releaseDate' | translate }}</label>
+        <input type="date" [(ngModel)]="form.releaseDate" />
+      </div>
+      <div class="form-group">
+        <label>{{ 'admin.image' | translate }}</label>
+        <div class="image-upload">
+          @if (form.imageUrl) {
+            <img [src]="form.imageUrl" class="image-preview" />
+          }
+          <input type="file" accept="image/*" (change)="onFileSelect($event)" />
+          @if (uploading()) {
+            <span class="upload-status">{{ 'admin.uploading' | translate }}</span>
+          }
+        </div>
+        <input type="text" [(ngModel)]="form.imageUrl" [placeholder]="'admin.imageUrlPlaceholder' | translate" />
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="cancel-btn" (click)="closeModal()">{{ 'admin.cancel' | translate }}</button>
+      <button class="save-btn" (click)="save()" [disabled]="!form.displayName || !form.price">
+        {{ (editing() ? 'admin.save' : 'admin.create') | translate }}
+      </button>
+    </div>
+  </div>
+}
+
+<!-- Deactivate Confirmation Modal -->
+@if (deactivateTarget()) {
+  <div class="modal-backdrop" (click)="closeDeactivate()"></div>
+  <div class="modal deactivate-modal" role="dialog" aria-modal="true">
+    <div class="modal-header">
+      <h2>{{ 'admin.deactivateProduct' | translate }}</h2>
+      <button class="modal-close" (click)="closeDeactivate()">&#10005;</button>
+    </div>
+    <div class="modal-body">
+      <p class="deactivate-warning">{{ 'admin.deactivateWarning' | translate }}</p>
+      <p class="deactivate-product-name">{{ deactivateTarget().displayName }}</p>
+      <label class="deactivate-checkbox">
+        <input type="checkbox" [(ngModel)]="deactivateConfirm" />
+        <span>{{ 'admin.deactivateConfirmLabel' | translate }}</span>
+      </label>
+    </div>
+    <div class="modal-footer">
+      <button class="cancel-btn" (click)="closeDeactivate()">{{ 'admin.cancel' | translate }}</button>
+      <button class="confirm-deactivate-btn" [disabled]="!deactivateConfirm" (click)="confirmDeactivate()">
+        {{ 'admin.confirmDeactivate' | translate }}
+      </button>
+    </div>
+  </div>
+}

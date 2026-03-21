@@ -1,0 +1,143 @@
+databaseChangeLog:
+  - changeSet:
+      id: 015-add-fk-indexes
+      author: ecommerce
+      changes:
+        - createIndex:
+            indexName: idx_products_category_id
+            tableName: products
+            columns:
+              - column:
+                  name: category_id
+        - createIndex:
+            indexName: idx_order_lines_order_id
+            tableName: order_lines
+            columns:
+              - column:
+                  name: order_id
+        - createIndex:
+            indexName: idx_order_lines_product_id
+            tableName: order_lines
+            columns:
+              - column:
+                  name: product_id
+        - createIndex:
+            indexName: idx_order_events_order_id
+            tableName: order_events
+            columns:
+              - column:
+                  name: order_id
+        - createIndex:
+            indexName: idx_customer_orders_user_id
+            tableName: customer_orders
+            columns:
+              - column:
+                  name: user_id
+        - createIndex:
+            indexName: idx_cart_items_cart_id
+            tableName: cart_items
+            columns:
+              - column:
+                  name: cart_id
+        - createIndex:
+            indexName: idx_cart_items_product_id
+            tableName: cart_items
+            columns:
+              - column:
+                  name: product_id
+        - createIndex:
+            indexName: idx_product_attributes_product_id
+            tableName: product_attributes
+            columns:
+              - column:
+                  name: product_id
+        - createIndex:
+            indexName: idx_product_variants_product_id
+            tableName: product_variants
+            columns:
+              - column:
+                  name: product_id
+        - createIndex:
+            indexName: idx_product_translations_product_id
+            tableName: product_translations
+            columns:
+              - column:
+                  name: product_id
+        - createIndex:
+            indexName: idx_category_translations_category_id
+            tableName: category_translations
+            columns:
+              - column:
+                  name: category_id
+        - createIndex:
+            indexName: idx_wishlist_items_user_id
+            tableName: wishlist_items
+            columns:
+              - column:
+                  name: user_id
+        - createIndex:
+            indexName: idx_wishlist_items_product_id
+            tableName: wishlist_items
+            columns:
+              - column:
+                  name: product_id
+        - createIndex:
+            indexName: idx_categories_parent_id
+            tableName: categories
+            columns:
+              - column:
+                  name: parent_id
+        - createIndex:
+            indexName: idx_user_roles_user_id
+            tableName: user_roles
+            columns:
+              - column:
+                  name: user_id
+        - createIndex:
+            indexName: idx_user_roles_role_id
+            tableName: user_roles
+            columns:
+              - column:
+                  name: role_id
+        - createIndex:
+            indexName: idx_promotions_product_id
+            tableName: promotions
+            columns:
+              - column:
+                  name: product_id
+        - createIndex:
+            indexName: idx_reviews_user_id
+            tableName: reviews
+            columns:
+              - column:
+                  name: user_id
+        - createIndex:
+            indexName: idx_reviews_product_id
+            tableName: reviews
+            columns:
+              - column:
+                  name: product_id
+
+  - changeSet:
+      id: 015-add-check-constraints
+      author: ecommerce
+      changes:
+        - sql:
+            sql: ALTER TABLE reviews ADD CONSTRAINT chk_reviews_rating CHECK (rating BETWEEN 1 AND 5);
+        - sql:
+            sql: ALTER TABLE products ADD CONSTRAINT chk_products_stock CHECK (stock >= 0);
+        - sql:
+            sql: ALTER TABLE product_variants ADD CONSTRAINT chk_product_variants_stock CHECK (stock >= 0);
+        - sql:
+            sql: ALTER TABLE order_lines ADD CONSTRAINT chk_order_lines_quantity CHECK (quantity > 0);
+        - sql:
+            sql: ALTER TABLE promotions ADD CONSTRAINT chk_promotions_discount_percent CHECK (discount_percent > 0 AND discount_percent <= 100);
+
+  - changeSet:
+      id: 015-add-unique-email
+      author: ecommerce
+      changes:
+        - addUniqueConstraint:
+            tableName: users
+            columnNames: email
+            constraintName: uq_users_email

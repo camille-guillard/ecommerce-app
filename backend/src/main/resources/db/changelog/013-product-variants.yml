@@ -1,0 +1,44 @@
+databaseChangeLog:
+  - changeSet:
+      id: 013-create-product-variants
+      author: ecommerce
+      changes:
+        - createTable:
+            tableName: product_variants
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: product_id
+                  type: bigint
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_pv_product
+                    references: products(id)
+              - column:
+                  name: color
+                  type: varchar(50)
+              - column:
+                  name: size
+                  type: varchar(20)
+              - column:
+                  name: stock
+                  type: int
+                  constraints:
+                    nullable: false
+              - column:
+                  name: price_override
+                  type: decimal(10,2)
+
+  - changeSet:
+      id: 013-insert-variants
+      author: ecommerce
+      changes:
+        - sqlFile:
+            path: db/changelog/013-product-variants.sql
+            relativeToChangelogFile: false

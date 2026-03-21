@@ -1,0 +1,71 @@
+<div class="order-detail-page">
+  @if (loading()) {
+    <div class="loading">{{ 'catalogue.loading' | translate }}</div>
+  } @else if (order(); as o) {
+    <a routerLink="/orders" class="back-link">&larr; {{ 'orders.title' | translate }}</a>
+
+    <div class="order-header-card">
+      <div class="order-header-top">
+        <h1>{{ 'orders.order' | translate }} #{{ o.id }}</h1>
+        <span class="order-status" [attr.data-status]="o.status">{{ getStatusLabel(o.status) }}</span>
+      </div>
+      <div class="order-meta">
+        <span>{{ o.createdAt | date:'dd/MM/yyyy HH:mm' }}</span>
+        <span class="order-total">{{ o.totalAmount | number:'1.2-2' }} &euro;</span>
+      </div>
+    </div>
+
+    <div class="address-section">
+      <div class="address-card">
+        <h3>{{ 'auth.billingAddress' | translate }}</h3>
+        <p>{{ o.billingStreet }}</p>
+        <p>{{ o.billingPostalCode }} {{ o.billingCity }}</p>
+      </div>
+      <div class="address-card">
+        <h3>{{ 'auth.shippingAddress' | translate }}</h3>
+        <p>{{ o.shippingStreet }}</p>
+        <p>{{ o.shippingPostalCode }} {{ o.shippingCity }}</p>
+      </div>
+    </div>
+
+    <div class="order-lines-card">
+      <h3>{{ 'catalogue.articles' | translate }}</h3>
+      @for (line of o.lines; track line.productId) {
+        <div class="order-line">
+          <div class="line-img-wrapper">
+            @if (line.productImageUrl) {
+              <img [src]="line.productImageUrl" [alt]="line.productDisplayName" class="line-img" />
+            }
+          </div>
+          <div class="line-info">
+            <a [routerLink]="['/products', line.productId]" class="line-name">{{ line.productDisplayName }}</a>
+            <span class="line-qty">x{{ line.quantity }} &mdash; {{ line.unitPrice | number:'1.2-2' }} &euro;/u</span>
+          </div>
+          <span class="line-subtotal">{{ line.subtotal | number:'1.2-2' }} &euro;</span>
+          @if (line.userRating) {
+            <span class="rated-badge"><app-star-rating [rating]="line.userRating" /></span>
+          } @else {
+            <a [routerLink]="['/products', line.productId]" fragment="reviews" class="rate-link">&#9733; {{ 'orders.rate' | translate }}</a>
+          }
+        </div>
+      }
+    </div>
+
+    @if (o.events && o.events.length > 0) {
+      <div class="order-events-card">
+        <h3>{{ 'orders.history' | translate }}</h3>
+        <div class="events-timeline">
+          @for (event of o.events; track event.createdAt) {
+            <div class="event-item">
+              <span class="event-dot" [attr.data-status]="event.status"></span>
+              <div class="event-content">
+                <span class="event-status" [attr.data-status]="event.status">{{ getStatusLabel(event.status) }}</span>
+                <span class="event-date">{{ event.createdAt | date:'dd/MM/yyyy HH:mm' }}</span>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    }
+  }
+</div>

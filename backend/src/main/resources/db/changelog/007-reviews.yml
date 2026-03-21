@@ -1,0 +1,56 @@
+databaseChangeLog:
+  - changeSet:
+      id: 007-create-reviews
+      author: ecommerce
+      changes:
+        - createTable:
+            tableName: reviews
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: user_id
+                  type: bigint
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_review_user
+                    references: users(id)
+              - column:
+                  name: product_id
+                  type: bigint
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_review_product
+                    references: products(id)
+              - column:
+                  name: rating
+                  type: int
+                  constraints:
+                    nullable: false
+              - column:
+                  name: comment
+                  type: varchar(1000)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created_at
+                  type: timestamp
+                  constraints:
+                    nullable: false
+        - addUniqueConstraint:
+            tableName: reviews
+            columnNames: user_id, product_id
+            constraintName: uk_review_user_product
+
+  - changeSet:
+      id: 007-insert-reviews
+      author: ecommerce
+      changes:
+        - sqlFile:
+            path: db/changelog/007-reviews-data.sql
+            relativeToChangelogFile: false

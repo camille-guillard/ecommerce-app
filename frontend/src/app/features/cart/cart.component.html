@@ -1,0 +1,100 @@
+<div class="cart-page">
+  <h1 class="page-title">{{ 'cart.title' | translate }}</h1>
+
+  @if (cartService.items().length === 0) {
+    <div class="empty-cart">
+      <p>{{ 'cart.empty' | translate }}</p>
+      <a routerLink="/" class="back-link">{{ 'cart.backToCatalogue' | translate }}</a>
+    </div>
+  } @else {
+    <div class="cart-items">
+      @for (item of cartService.items(); track ('' + item.product.id + '-' + item.variantId)) {
+        <div class="cart-item">
+          <div class="item-info">
+            <h3 class="item-name"><a [routerLink]="['/products', item.product.id]">{{ item.product.displayName }}</a></h3>
+            @if (item.variantLabel) {
+              <p class="item-variant">{{ item.variantLabel }}</p>
+            }
+            <p class="item-category">{{ item.product.categoryDisplayName }}</p>
+            @if (item.product.discountedPrice) {
+              <p class="item-price"><span class="item-price-old">{{ item.product.price | number:'1.2-2' }} &euro;</span> {{ item.product.discountedPrice | number:'1.2-2' }} &euro; / {{ 'cart.unit' | translate }}</p>
+            } @else {
+              <p class="item-price">{{ item.product.price | number:'1.2-2' }} &euro; / {{ 'cart.unit' | translate }}</p>
+            }
+          </div>
+          <div class="item-actions">
+            <div class="quantity-controls">
+              <button class="qty-btn" (click)="decrement(item.product.id, item.quantity, item.variantId)">-</button>
+              <input type="number" class="qty-input" [value]="item.quantity" min="1" [attr.max]="item.variantStock ?? item.product.stock" (input)="onQuantityInput($event, item.product.id, item.variantStock ?? item.product.stock, item.variantId)" />
+              <button class="qty-btn" [disabled]="(item.variantStock ?? item.product.stock) !== null && item.quantity >= (item.variantStock ?? item.product.stock)!" (click)="increment(item.product.id, item.quantity, item.variantStock ?? item.product.stock, item.variantId)">+</button>
+            </div>
+            <span class="item-subtotal">{{ (item.product.discountedPrice ?? item.product.price) * item.quantity | number:'1.2-2' }} &euro;</span>
+            <button class="remove-btn" (click)="remove(item.product.id, item.variantId)">{{ 'cart.remove' | translate }}</button>
+          </div>
+        </div>
+      }
+    </div>
+
+    @if (authService.isLoggedIn()) {
+      <div class="address-section">
+        <div class="address-col">
+          <h3>{{ 'auth.billingAddress' | translate }}</h3>
+          <div class="form-group">
+            <label>{{ 'auth.street' | translate }}</label>
+            <input type="text" [(ngModel)]="billingStreet" />
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>{{ 'auth.city' | translate }}</label>
+              <input type="text" [(ngModel)]="billingCity" />
+            </div>
+            <div class="form-group">
+              <label>{{ 'auth.postalCode' | translate }}</label>
+              <input type="text" [(ngModel)]="billingPostalCode" />
+            </div>
+          </div>
+        </div>
+        <div class="address-col">
+          <h3>{{ 'auth.shippingAddress' | translate }}</h3>
+          <div class="form-group">
+            <label>{{ 'auth.street' | translate }}</label>
+            <input type="text" [(ngModel)]="shippingStreet" />
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>{{ 'auth.city' | translate }}</label>
+              <input type="text" [(ngModel)]="shippingCity" />
+            </div>
+            <div class="form-group">
+              <label>{{ 'auth.postalCode' | translate }}</label>
+              <input type="text" [(ngModel)]="shippingPostalCode" />
+            </div>
+          </div>
+        </div>
+      </div>
+    }
+
+    <div class="cart-footer">
+      <div class="cart-total">
+        <span>{{ 'cart.total' | translate }} :</span>
+        <span class="total-price">{{ cartService.total() | number:'1.2-2' }} &euro;</span>
+      </div>
+      <div class="cart-actions">
+        <button class="clear-btn" (click)="clear()">{{ 'cart.clear' | translate }}</button>
+        <a routerLink="/" class="back-link">{{ 'cart.continueShopping' | translate }}</a>
+        <button class="checkout-btn" [disabled]="processing()" (click)="checkout()">
+          @if (authService.isLoggedIn()) { {{ 'cart.pay' | translate }} } @else { {{ 'cart.loginToPay' | translate }} }
+        </button>
+      </div>
+    </div>
+  }
+</div>
+
+@if (processing()) {
+  <div class="processing-overlay">
+    <div class="processing-modal">
+      <div class="spinner"></div>
+      <p>{{ 'cart.processing' | translate }}</p>
+    </div>
+  </div>
+}

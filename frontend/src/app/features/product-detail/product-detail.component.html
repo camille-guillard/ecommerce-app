@@ -1,0 +1,202 @@
+<div class="detail-page">
+  @if (loading()) {
+    <div class="loading">{{ 'catalogue.loading' | translate }}</div>
+  } @else if (product(); as p) {
+    <a routerLink="/" class="back-link">&larr; {{ 'product.backToCatalogue' | translate }}</a>
+
+    <div class="detail-card">
+      <div class="detail-image">
+        @if (p.imageUrl) {
+          <img [src]="p.imageUrl" [alt]="p.displayName" />
+        }
+        @if (p.discountPercent && p.available) {
+          <span class="promo-badge">-{{ p.discountPercent | number:'1.0-0' }}%</span>
+        }
+        @if (!p.available) {
+          <span class="unavailable-badge">{{ 'product.unavailable' | translate }}</span>
+        }
+        @if (isPreorder(p)) {
+          <span class="preorder-badge">{{ 'catalogue.preorder' | translate }}</span>
+        }
+      </div>
+
+      <div class="detail-info">
+        <span class="detail-category">{{ p.categoryDisplayName }}</span>
+        <h1 class="detail-name">{{ p.displayName }}</h1>
+
+        @if (summary(); as s) {
+          @if (s.count > 0) {
+            <div class="detail-rating-summary">
+              <app-star-rating [rating]="s.averageRating" />
+              <span class="rating-text">{{ s.averageRating }} ({{ s.count }} {{ 'product.reviews' | translate }})</span>
+            </div>
+          }
+        }
+
+        <p class="detail-description">{{ p.description }}</p>
+
+        <div class="detail-pricing">
+          @if (p.discountedPrice) {
+            <span class="detail-price-old">{{ p.price | number:'1.2-2' }} &euro;</span>
+            <span class="detail-price promo">{{ p.discountedPrice | number:'1.2-2' }} &euro;</span>
+          } @else {
+            <span class="detail-price">{{ p.price | number:'1.2-2' }} &euro;</span>
+          }
+        </div>
+
+        @if (p.hasVariants) {
+          <div class="variant-selectors">
+            @if (availableColors().length > 0) {
+              <div class="variant-group">
+                <label>{{ 'product.color' | translate }}</label>
+                <div class="color-options">
+                  @for (color of availableColors(); track color) {
+                    <button class="color-pill" [class.active]="selectedColor() === color" (click)="selectColor(color)">
+                      {{ color }}
+                    </button>
+                  }
+                </div>
+              </div>
+            }
+            @if (availableSizes().length > 0) {
+              <div class="variant-group">
+                <label>{{ 'product.size' | translate }}</label>
+                <div class="size-options">
+                  @for (size of availableSizes(); track size) {
+                    <button class="size-pill" [class.active]="selectedSize() === size"
+                            [class.out-of-stock]="!isSizeAvailable(size)"
+                            [disabled]="!isSizeAvailable(size)"
+                            (click)="selectSize(size)">
+                      {{ size }}
+                    </button>
+                  }
+                </div>
+              </div>
+            }
+            @if (selectedVariant(); as v) {
+              <p class="stock-info">
+                @if (v.stock > 0) {
+                  {{ v.stock }} {{ 'product.inStock' | translate }}
+                } @else {
+                  {{ 'product.outOfStock' | translate }}
+                }
+              </p>
+            }
+          </div>
+        }
+
+        @if (p.releaseDate) {
+          <p class="release-date">{{ 'product.releaseDate' | translate }} : {{ p.releaseDate | date:'dd/MM/yyyy' }}</p>
+        }
+
+        @if (!p.hasVariants && p.stock !== null) {
+          <p class="stock-info" [class.low-stock]="p.stock < 20 && p.stock > 0">
+            @if (p.stock > 0) {
+              {{ p.stock }} {{ 'product.inStock' | translate }}
+            } @else {
+              {{ 'product.outOfStock' | translate }}
+            }
+          </p>
+        }
+
+        <div class="detail-actions">
+          @if (getCartQuantity(p.id) > 0) {
+            <div class="detail-qty-control">
+              <button class="cart-qty-btn" (click)="decrementCart(p.id)">-</button>
+              <input type="number" class="cart-qty-input" [value]="getCartQuantity(p.id)" min="1" [attr.max]="getMaxStock()" (input)="onCartQuantityInput($event, p.id, getMaxStock())" />
+
+              <button class="cart-qty-btn" [disabled]="getMaxStock() !== null && getCartQuantity(p.id) >= getMaxStock()!" (click)="addToCart()">+</button>
+            </div>
+          } @else {
+            <button class="detail-add-btn" [disabled]="!p.available || (p.hasVariants && (!selectedVariant() || selectedVariant()!.stock === 0))" (click)="addToCart()">
+              @if (p.available) { {{ 'product.addToCart' | translate }} } @else { {{ 'product.unavailable' | translate }} }
+            </button>
+          }
+          @if (authService.isLoggedIn()) {
+            <button class="detail-wishlist-btn" [class.active]="wishlistService.isInWishlist(p.id)" (click)="wishlistService.toggle(p.id)" [attr.aria-label]="wishlistAriaLabel(p.id, p.displayName)">
+              <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" [attr.fill]="wishlistService.isInWishlist(p.id) ? '#ef4444' : 'none'" stroke="currentColor" stroke-width="2"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+            </button>
+          }
+        </div>
+      </div>
+    </div>
+
+    @if (p.detailedDescription) {
+      <div class="detailed-description-section">
+        <h2>{{ 'product.detailedDescription' | translate }}</h2>
+        <p>{{ p.detailedDescription }}</p>
+      </div>
+    }
+
+    <!-- Reviews section -->
+    <div class="reviews-section" id="reviews">
+      <h2 class="reviews-title">{{ 'product.customerReviews' | translate }}</h2>
+
+      @if (summary(); as s) {
+        @if (s.count > 0) {
+          <div class="histogram">
+            @for (star of [5, 4, 3, 2, 1]; track star) {
+              <div class="histogram-row">
+                <span class="histogram-label">{{ star }} &starf;</span>
+                <div class="histogram-bar-bg">
+                  <div class="histogram-bar-fill" [style.width.%]="getHistogramPercent(star)"></div>
+                </div>
+                <span class="histogram-percent">{{ getHistogramPercent(star) }}%</span>
+              </div>
+            }
+          </div>
+        }
+      }
+
+      <div class="reviews-columns">
+        <div class="reviews-list">
+          @if (reviews().length === 0) {
+            <p class="no-reviews">{{ 'product.noReviews' | translate }}</p>
+          }
+          @for (review of reviews(); track review.id) {
+            <div class="review-card">
+              <div class="review-header">
+                <strong>{{ review.username }}</strong>
+                <app-star-rating [rating]="review.rating" />
+                <span class="review-date">{{ review.createdAt | date:'dd/MM/yyyy' }}</span>
+              </div>
+              <p class="review-comment">{{ review.comment }}</p>
+            </div>
+          }
+        </div>
+
+        <div class="review-form-container">
+          <h3>{{ 'product.leaveReview' | translate }}</h3>
+          @if (!authService.isLoggedIn()) {
+            <div class="review-form-disabled">
+              <p>{{ 'product.loginToReview' | translate }}</p>
+              <a routerLink="/login" [queryParams]="{ redirect: '/products/' + p.id }">{{ 'product.loginLink' | translate }}</a>
+            </div>
+          } @else if (canReviewStatus().hasReviewed) {
+            <div class="review-form-disabled">
+              <p>{{ 'product.alreadyReviewed' | translate }}</p>
+            </div>
+          } @else if (!canReviewStatus().canReview) {
+            <div class="review-form-disabled">
+              <p>{{ 'product.mustPurchase' | translate }}</p>
+            </div>
+          } @else {
+            <div class="review-form">
+              <div class="form-group">
+                <label>{{ 'product.yourRating' | translate }}</label>
+                <app-star-rating [rating]="reviewRating" [interactive]="true" (ratingChange)="onRatingSelect($event)" />
+              </div>
+              <div class="form-group">
+                <label for="reviewComment">{{ 'product.yourComment' | translate }}</label>
+                <textarea id="reviewComment" [(ngModel)]="reviewComment" rows="4" [placeholder]="'product.commentPlaceholder' | translate"></textarea>
+              </div>
+              <button class="submit-review-btn" [disabled]="!reviewRating || !reviewComment.trim() || submitting()" (click)="submitReview()">
+                @if (submitting()) { {{ 'product.submitting' | translate }} } @else { {{ 'product.submitReview' | translate }} }
+              </button>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  }
+</div>

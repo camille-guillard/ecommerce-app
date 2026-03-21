@@ -1,0 +1,94 @@
+databaseChangeLog:
+  - changeSet:
+      id: 008-create-product-translations
+      author: ecommerce
+      changes:
+        - createTable:
+            tableName: product_translations
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: product_id
+                  type: bigint
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_pt_product
+                    references: products(id)
+              - column:
+                  name: locale
+                  type: varchar(5)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: display_name
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: description
+                  type: varchar(500)
+              - column:
+                  name: detailed_description
+                  type: text
+        - addUniqueConstraint:
+            tableName: product_translations
+            columnNames: product_id, locale
+            constraintName: uk_pt_product_locale
+
+  - changeSet:
+      id: 008-create-category-translations
+      author: ecommerce
+      changes:
+        - createTable:
+            tableName: category_translations
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: category_id
+                  type: bigint
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_ct_category
+                    references: categories(id)
+              - column:
+                  name: locale
+                  type: varchar(5)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: display_name
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+        - addUniqueConstraint:
+            tableName: category_translations
+            columnNames: category_id, locale
+            constraintName: uk_ct_category_locale
+
+  - changeSet:
+      id: 008-insert-category-translations
+      author: ecommerce
+      changes:
+        - sqlFile:
+            path: db/changelog/008-translations-data.sql
+            relativeToChangelogFile: false
+
+  - changeSet:
+      id: 008-insert-product-translations
+      author: ecommerce
+      changes:
+        - sqlFile:
+            path: db/changelog/008-product-translations.sql
+            relativeToChangelogFile: false
